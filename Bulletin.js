@@ -10,6 +10,12 @@ var Bulletin = /** @class */ (function () {
         this.posts = posts;
         this.maxLength = maxLength;
     }
+    Bulletin.loadFromMemory = function (memoryObj) {
+        if (!memoryObj["posts"])
+            return new Bulletin();
+        else
+            return new Bulletin(memoryObj["posts"]);
+    };
     Bulletin.prototype.add = function (posting) {
         console.log(posting);
         this.posts.unshift(posting);

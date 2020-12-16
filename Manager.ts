@@ -4,5 +4,8 @@ import { Bulletin } from "./Bulletin";
 
 export interface Manager
 {
-    run(room: Room, free: Creep[], bulletin: Bulletin);
+    room     : Room;
+    bulletin : Bulletin;
+
+    run(free: Creep[]);
 }

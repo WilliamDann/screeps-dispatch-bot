@@ -1,36 +1,20 @@
 // Disbatch.js
 //   assigns commands to creeps in a room
 
-import { Bulletin }          from "./Bulletin";
-import { ConstructSites }    from "./Construction";
-import { FillContainers }    from "./Containers";
-import { ControllerUpgrade } from "./Controller";
-import { Manager } from "./Manager";
-import { PopulationUpkeep }  from './Population';
+import { Manager }  from "./Manager";
 
-export function run(room: Room, bulletin: Bulletin)
+export class Disbatch
 {
-    // load information
-    let creeps  : Creep[]  = [];
-    for (let creep of room.find(FIND_MY_CREEPS))
+    managers: Manager[];
+
+    constructor(managers: Manager[])
     {
-        if (!creep.memory["commands"] || creep.memory["commands"].length == 0)
-            creeps.push(creep);
+        this.managers = managers;
     }
 
-    
-    // maintain creep population
-    PopulationUpkeep(room, creeps, bulletin);
-    
-    // fill containers 
-    FillContainers(room, creeps, bulletin);
-
-    // upgrade controller
-    ControllerUpgrade(room, creeps, bulletin);
-
-    // build sites
-    ConstructSites(room, creeps, bulletin);
-
-    // update bulletin
-    room.memory["bulletin"] = bulletin;
+    run(free: Creep[])
+    {
+        for (let manager of this.managers)
+            manager.run(free);
+    }
 }

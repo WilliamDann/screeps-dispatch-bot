@@ -12,6 +12,12 @@ export class Bulletin
         this.maxLength = maxLength;
     }
 
+    static loadFromMemory(memoryObj: SpawnMemory): Bulletin
+    {
+        if (!memoryObj["posts"]) return new Bulletin();
+        else return new Bulletin(memoryObj["posts"]);
+    }
+
     add(posting: Posting)
     {
         console.log(posting)

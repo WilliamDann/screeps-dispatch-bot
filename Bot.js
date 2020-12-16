@@ -15,12 +15,6 @@ function complete(creep, bulletin) {
     bulletin.add(new Bulletin_1.Posting(command.target, "job_complete", creep.name));
     creep.memory["commands"] = commands;
 }
-function reset(creep) {
-    for (var _i = 0, RESOURCES_ALL_1 = RESOURCES_ALL; _i < RESOURCES_ALL_1.length; _i++) {
-        var res = RESOURCES_ALL_1[_i];
-        creep.drop(res);
-    }
-}
 function handleResult(creep, result, bulletin) {
     if (result != OK)
         if (!creep.memory["errors"])
@@ -31,8 +25,6 @@ function handleResult(creep, result, bulletin) {
         creep.memory["errors"] = 0;
     if (creep.memory["errors"] > 10) {
         complete(creep, bulletin);
-        // reset(creep);
-        // creep.say("cancelled due to errors")        
         creep.memory["errors"] = 0;
     }
 }
