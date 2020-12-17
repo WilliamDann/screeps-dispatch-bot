@@ -7,6 +7,7 @@ export enum CompleteType
 {
     InventoryFull,
     InventoryEmpty,
+    TargetRepaired
 }
 
 function complete(creep: Creep, bulletin: Bulletin)
@@ -19,12 +20,6 @@ function complete(creep: Creep, bulletin: Bulletin)
     creep.memory["commands"] = commands;
 }
 
-function reset(creep: Creep)
-{
-    for (let res of RESOURCES_ALL)
-        creep.drop(res);
-}
-
 function handleResult(creep: Creep, result: number, bulletin: Bulletin)
 {
     if (result != OK)
@@ -35,12 +30,9 @@ function handleResult(creep: Creep, result: number, bulletin: Bulletin)
     else
         creep.memory["errors"] = 0;
         
-    if (creep.memory["errors"] > 10)
+    if (creep.memory["errors"] > 3)
     {
-        complete(creep, bulletin);
-        // reset(creep);
-
-        // creep.say("cancelled due to errors")        
+        complete(creep, bulletin); 
         creep.memory["errors"] = 0;
     }
 }
@@ -83,6 +75,11 @@ export function run(creep: Creep, bulletin: Bulletin)
 
         case CompleteType.InventoryEmpty:
             if (creep.store.getFreeCapacity() == creep.store.getCapacity())
+                complete(creep, bulletin);
+            break;
+
+        case CompleteType.TargetRepaired:
+            if (target.hits == target.hitsMax)
                 complete(creep, bulletin);
             break;
     }

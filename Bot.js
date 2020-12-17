@@ -8,18 +8,13 @@ var CompleteType;
 (function (CompleteType) {
     CompleteType[CompleteType["InventoryFull"] = 0] = "InventoryFull";
     CompleteType[CompleteType["InventoryEmpty"] = 1] = "InventoryEmpty";
+    CompleteType[CompleteType["TargetRepaired"] = 2] = "TargetRepaired";
 })(CompleteType = exports.CompleteType || (exports.CompleteType = {}));
 function complete(creep, bulletin) {
     var commands = creep.memory["commands"];
     var command = commands.shift();
     bulletin.add(new Bulletin_1.Posting(command.target, "job_complete", creep.name));
     creep.memory["commands"] = commands;
-}
-function reset(creep) {
-    for (var _i = 0, RESOURCES_ALL_1 = RESOURCES_ALL; _i < RESOURCES_ALL_1.length; _i++) {
-        var res = RESOURCES_ALL_1[_i];
-        creep.drop(res);
-    }
 }
 function handleResult(creep, result, bulletin) {
     if (result != OK)
@@ -29,10 +24,8 @@ function handleResult(creep, result, bulletin) {
             creep.memory["errors"] += 1;
     else
         creep.memory["errors"] = 0;
-    if (creep.memory["errors"] > 10) {
+    if (creep.memory["errors"] > 3) {
         complete(creep, bulletin);
-        // reset(creep);
-        // creep.say("cancelled due to errors")        
         creep.memory["errors"] = 0;
     }
 }
@@ -67,6 +60,10 @@ function run(creep, bulletin) {
             break;
         case CompleteType.InventoryEmpty:
             if (creep.store.getFreeCapacity() == creep.store.getCapacity())
+                complete(creep, bulletin);
+            break;
+        case CompleteType.TargetRepaired:
+            if (target.hits == target.hitsMax)
                 complete(creep, bulletin);
             break;
     }

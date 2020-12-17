@@ -3,13 +3,19 @@ export class Bulletin
     maxLength : Number;
     posts     : Posting[];
 
-    constructor(posts=null, maxLength=30)
+    constructor(posts=null, maxLength=40)
     {
         if (posts == null)
             posts = [];
 
         this.posts     = posts;
         this.maxLength = maxLength;
+    }
+
+    static loadFromMemory(memoryObj: SpawnMemory): Bulletin
+    {
+        if (!memoryObj["posts"]) return new Bulletin();
+        else return new Bulletin(memoryObj["posts"]);
     }
 
     add(posting: Posting)

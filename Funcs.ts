@@ -1,9 +1,11 @@
 export function creepsOnTask(room: Room, task: string)
 {
     let num = 0;
-    let creeps = room.find(FIND_MY_CREEPS);
-    for (let creep of creeps)
+    for (let id of Object.keys(Game.creeps))
     {
+        let creep = Game.creeps[id];
+        if (creep.room.name != room.name) continue;
+
         if (!creep.memory["commands"]) continue;
         if (!creep.memory["commands"][0]) continue;
 
