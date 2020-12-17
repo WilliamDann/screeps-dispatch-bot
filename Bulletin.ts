@@ -1,12 +1,12 @@
 export class Bulletin
 {
     maxLength : Number;
-    posts     : Posting[];
+    posts     : { [location: string]: Posting[] };
 
-    constructor(posts=null, maxLength=40)
+    constructor(posts: { [location: string]: Posting[] }=null, maxLength=40)
     {
         if (posts == null)
-            posts = [];
+            posts = {};
 
         this.posts     = posts;
         this.maxLength = maxLength;
@@ -20,32 +20,21 @@ export class Bulletin
 
     add(posting: Posting)
     {
-        console.log(posting)
-        
-        this.posts.unshift(posting);
-        if (this.posts.length > this.maxLength)
-            this.posts.pop();
+        console.log(posting);
+        this.posts[posting.target].unshift(posting);
+
+        if (this.posts[posting.target].length > this.maxLength)
+            this.posts[posting.target].pop();
     }
 
     clear()
     {
-        this.posts = [];
+        this.posts = {};
     }
 
-    findMentions(target: string): Posting[]
+    findAssigned(target: string): number
     {
-        var referenced = [];
-
-        for (var post of this.posts)
-            if (post.target == target)
-                referenced.push(post);
-
-        return referenced;
-    }
-
-    findJobsOut(target: string): number
-    {
-        let mentions = this.findMentions(target);
+        let mentions = this.posts[target];
         let diff = 0;
     
         for (let mention of mentions)
@@ -55,12 +44,6 @@ export class Bulletin
         }
     
         return diff;
-    }
-
-    output()
-    {
-        for (let post of this.posts)
-            console.log(`. ${post.target}: ${post.data} by ${post.poster}`)
     }
 }
 
