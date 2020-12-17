@@ -58,12 +58,13 @@ var PopulationManager = /** @class */ (function () {
         num += Globals.UPGRADE_WORKERS;
         num += Globals.BUILD_WORKERS;
         num += Globals.MINE_WORKERS;
+        num += Globals.REPAIR_WORKERS;
         return num;
     };
     // find the optimal body config for a room
     PopulationManager.prototype.calculateBodyPattern = function () {
         var parts = [];
-        var baseParts = [MOVE, WORK, CARRY];
+        var baseParts = [WORK, MOVE, CARRY];
         var toSpend = this.room.energyCapacityAvailable;
         while (toSpend > 0) {
             for (var _i = 0, baseParts_1 = baseParts; _i < baseParts_1.length; _i++) {

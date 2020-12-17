@@ -82,6 +82,7 @@ export class PopulationManager implements Manager
         num += Globals.UPGRADE_WORKERS;
         num += Globals.BUILD_WORKERS;
         num += Globals.MINE_WORKERS;
+        num += Globals.REPAIR_WORKERS;
     
         return num;
     }
@@ -91,7 +92,7 @@ export class PopulationManager implements Manager
     {
         let parts: BodyPartConstant[] = [];
     
-        let baseParts      = [ MOVE, WORK, CARRY ];
+        let baseParts      = [ WORK, MOVE, CARRY ];
         let toSpend:number = this.room.energyCapacityAvailable;
     
         while (toSpend > 0)

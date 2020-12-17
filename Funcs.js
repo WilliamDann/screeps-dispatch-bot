@@ -3,9 +3,11 @@ exports.__esModule = true;
 exports.findConstructionContainer = exports.findFilledContainers = exports.findFillableContainers = exports.creepsOnTask = void 0;
 function creepsOnTask(room, task) {
     var num = 0;
-    var creeps = room.find(FIND_MY_CREEPS);
-    for (var _i = 0, creeps_1 = creeps; _i < creeps_1.length; _i++) {
-        var creep = creeps_1[_i];
+    for (var _i = 0, _a = Object.keys(Game.creeps); _i < _a.length; _i++) {
+        var id = _a[_i];
+        var creep = Game.creeps[id];
+        if (creep.room.name != room.name)
+            continue;
         if (!creep.memory["commands"])
             continue;
         if (!creep.memory["commands"][0])

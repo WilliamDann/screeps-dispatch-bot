@@ -8,6 +8,7 @@ var PopulationManager_1 = require("./PopulationManager");
 var ContainerManager_1 = require("./ContainerManager");
 var ControllerManager_1 = require("./ControllerManager");
 var ConstructionManager_1 = require("./ConstructionManager");
+var RepairManager_1 = require("./RepairManager");
 function loop() {
     // clear dead creeps
     for (var i in Memory.creeps) {
@@ -20,20 +21,26 @@ function loop() {
     var freeCreeps = [];
     for (var _i = 0, _a = Object.keys(Game.creeps); _i < _a.length; _i++) {
         var creepID = _a[_i];
-        var creep = Game.creeps[creepID];
-        if (!creep.memory["commands"] || !creep.memory["commands"][0])
-            freeCreeps.push(creep);
+        var creep_1 = Game.creeps[creepID];
+        if (!creep_1.memory["commands"] || !creep_1.memory["commands"][0])
+            freeCreeps.push(creep_1);
     }
     var room = Game.spawns.MainSpawn.room;
     var disbatch = new Disbatch_1.Disbatch([
         new PopulationManager_1.PopulationManager(room, bulletin),
         new ContainerManager_1.ContainerManager(room, bulletin),
+        new ConstructionManager_1.ConstructionManager(room, bulletin),
+        new RepairManager_1.RepairManager(room, bulletin),
         new ControllerManager_1.ControllerManager(room, bulletin),
-        new ConstructionManager_1.ConstructionManager(room, bulletin)
     ]);
     disbatch.run(freeCreeps);
     for (var name in Game.creeps) {
         Bot.run(Game.creeps[name], bulletin);
+    }
+    for (var _b = 0, freeCreeps_1 = freeCreeps; _b < freeCreeps_1.length; _b++) {
+        var creep = freeCreeps_1[_b];
+        creep.moveTo(Game.spawns.MainSpawn);
+        creep.say("idle");
     }
     Game.spawns.MainSpawn.memory["posts"] = bulletin.posts;
 }

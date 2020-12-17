@@ -4,7 +4,7 @@ exports.Posting = exports.Bulletin = void 0;
 var Bulletin = /** @class */ (function () {
     function Bulletin(posts, maxLength) {
         if (posts === void 0) { posts = null; }
-        if (maxLength === void 0) { maxLength = 30; }
+        if (maxLength === void 0) { maxLength = 40; }
         if (posts == null)
             posts = [];
         this.posts = posts;

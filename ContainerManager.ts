@@ -26,7 +26,7 @@ export class ContainerManager implements Manager
             if (!assignee) 
             return;
             
-            let source = this.room.find(FIND_SOURCES_ACTIVE)[0];
+            let source = this.room.find(FIND_SOURCES)[0];
             let container = findFillableContainers(this.room)[0];
     
             
@@ -38,6 +38,11 @@ export class ContainerManager implements Manager
             else
             {
                 let target = findConstructionContainer(this.room);
+                if (!target)
+                {
+                    free.push(assignee);
+                    return;
+                }
                 dropoff = new Command(target.id, "build", CompleteType.InventoryEmpty);
             }
         

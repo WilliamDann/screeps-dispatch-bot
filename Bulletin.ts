@@ -3,7 +3,7 @@ export class Bulletin
     maxLength : Number;
     posts     : Posting[];
 
-    constructor(posts=null, maxLength=30)
+    constructor(posts=null, maxLength=40)
     {
         if (posts == null)
             posts = [];
