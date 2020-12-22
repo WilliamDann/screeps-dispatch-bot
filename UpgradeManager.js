@@ -16,32 +16,22 @@ class UpgradeManager
     run(overseer)
     {
         let creeps = overseer.getCreeps(this.marker);
-        console.log(creeps.length)
-
         for (let creep of creeps)
         {
             if (creep.memory.order)
             {
-                if (creep.store.energy == 0)
-                    this.pickup(creep);
-                else
-                    this.upgrade(creep);
-
+                this.runOrder(creep);
                 continue;
             }
 
-            let container = overseer.logisticManagers[this.room.name].getFilledContainers()[0];
-            if (!container)
-                continue;
-
-            creep.memory.order = { from: container.id, to: this.room.controller.id }
+            this.assignOrder(creep);
         }
 
         if (creeps.length < this.MAX_UPGRADERS)
         {
             if (overseer.spawnerManagers[this.room.name].getInQueueWithMarker(this.marker).length == 0)
                 overseer.spawnerManagers[this.room.name].request(
-                    [WORK, MOVE, CARRY],
+                    [WORK, MOVE, MOVE, CARRY],
                     SpawnManager.generateName("upgrade"),
                     { marker: this.marker }
                 );
@@ -54,6 +44,23 @@ class UpgradeManager
         this.pre(overseer);
         this.run(overseer);
         this.post(overseer);
+    }
+
+    runOrder(creep)
+    {
+        if (creep.store.energy == 0)
+            return this.pickup(creep);
+        else
+            return this.upgrade(creep);
+    }
+
+    assignOrder(creep)
+    {
+        let container = overseer.logisticManagers[this.room.name].getFilledContainers()[0];
+        if (!container)
+            continue;
+
+        creep.memory.order = { from: container.id, to: this.room.controller.id }
     }
 
     pickup(creep)

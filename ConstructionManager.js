@@ -27,11 +27,7 @@ class ConstructionManager
         {
             if (creep.memory.order)
             {
-                if (creep.store.energy == 0)
-                    this.pickup(creep);
-                else
-                    this.build(creep);
-
+                this.runOrder(creep);
                 continue;
             }
             
@@ -54,7 +50,7 @@ class ConstructionManager
             if (overseer.spawnerManagers[this.room.name].getInQueueWithMarker(this.marker).length == 0)
             {
                 overseer.spawnerManagers[this.room.name].request(
-                    [WORK, CARRY, MOVE],
+                    [WORK, WORK, CARRY, MOVE],
                     SpawnManager.generateName("construct"),
                     { marker: this.marker }
                 );
@@ -72,6 +68,14 @@ class ConstructionManager
         this.pre(overseer);
         this.run(overseer);
         this.post(overseer);
+    }
+
+    runOrder(creep)
+    {
+        if (creep.store.energy == 0)
+            return this.pickup(creep);
+        else
+            return this.build(creep);
     }
 
     /// helpers

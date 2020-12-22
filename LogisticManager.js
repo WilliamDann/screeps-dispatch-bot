@@ -34,7 +34,7 @@ class LogisticManager
             if (overseer.spawnerManagers[this.room.name].getInQueueWithMarker(this.marker).length == 0)
             {
                 overseer.spawnerManagers[this.room.name].force(
-                    [WORK, CARRY, MOVE],
+                    [WORK, CARRY, MOVE, MOVE],
                     SpawnManager.generateName("logi"),
                     { marker: this.marker }
                 );
@@ -45,19 +45,12 @@ class LogisticManager
         {
             if (creep.memory.order)
             {
-                if (creep.store.energy == 0)
-                    this.pickup(creep);
-                else
-                    this.dropoff(creep);
+                this.runOrder(creep);
 
                 continue;
             }
             
-            let order = this.orders.shift();
-            if (!order)
-                break; // TODO: free un-needed creep
-
-            creep.memory.order = order;
+            this.assignOrder(creep);
         }
 
         // tower logic
@@ -94,7 +87,23 @@ class LogisticManager
 
     /// helpers
     
-    // run pickup process
+    runOrder(creep)
+    {
+        if (creep.store.energy == 0)
+            this.pickup(creep);
+        else
+            this.dropoff(creep);
+    }
+
+    assignOrder(creep)
+    {
+        let order = this.orders.shift();
+        if (!order)
+            return; // TODO: free un-needed creep
+
+        creep.memory.order = order;
+    }
+
     pickup(creep)
     {
         let order  = creep.memory.order;
@@ -169,13 +178,13 @@ class LogisticManager
     // get a point where energy can be dropped into the system
     getFillableContainers()
     {
-        return this.room.find(FIND_STRUCTURES, { filter: s =>  s.structureType == STRUCTURE_CONTAINER || s.structureType == STRUCTURE_STORAGE && s.store.energy != s.store.getCapacity(RESOURCE_ENERGY) })
+        return this.room.find(FIND_STRUCTURES, { filter: s =>  (s.structureType == STRUCTURE_CONTAINER || s.structureType == STRUCTURE_STORAGE) && s.store.energy != s.store.getCapacity(RESOURCE_ENERGY) })
     }
 
     // get containers with energy
     getFilledContainers()
     {
-        return this.room.find(FIND_STRUCTURES, { filter: s =>  s.structureType == STRUCTURE_CONTAINER || s.structureType == STRUCTURE_STORAGE && s.store.energy != 0 })
+        return this.room.find(FIND_STRUCTURES, { filter: s =>  (s.structureType == STRUCTURE_CONTAINER || s.structureType == STRUCTURE_STORAGE) && s.store.energy != 0 })
     }
 
 

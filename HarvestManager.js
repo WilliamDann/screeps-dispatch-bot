@@ -40,23 +40,18 @@ class HarvestManager
         {
             if (creep.memory.order)
             {
-                if (creep.store.energy == creep.store.getCapacity(RESOURCE_ENERGY))
-                    this.dropoff(creep);
-                else
-                    this.harvest(creep);
-
+                this.runOrder(creep);
                 continue;
             }
 
-            let to = overseer.logisticManagers[this.room.name].getFillableContainers()[0];
-            creep.memory.order = { from: this.sources[0], to: to.id }
+            this.assignOrder(creep);
         }
 
         if (creeps.length < this.sources.length*this.CREEPS_PER_SOURCE)
         {
             if (overseer.spawnerManagers[this.room.name].getInQueueWithMarker(this.marker).length == 0)
                 overseer.spawnerManagers[this.room.name].request(
-                    [WORK, MOVE, CARRY],
+                    [WORK, WORK, MOVE, CARRY],
                     SpawnManager.generateName("harv"),
                     { marker: this.marker }
                 );
@@ -73,6 +68,20 @@ class HarvestManager
         this.pre(overseer);
         this.run(overseer);
         this.post(overseer);
+    }
+
+    runOrder(creep)
+    {
+        if (creep.store.energy == creep.store.getCapacity(RESOURCE_ENERGY))
+            return this.dropoff(creep);
+        else
+            return this.harvest(creep);
+    }
+
+    assignOrder(creep)
+    {
+        let to = overseer.logisticManagers[this.room.name].getFillableContainers()[0];
+        creep.memory.order = { from: this.sources[0], to: to.id }
     }
 
     harvest(creep)
@@ -93,6 +102,11 @@ class HarvestManager
 
         if (result = ERR_NOT_IN_RANGE)
             result = creep.moveTo(drop);
+        if (result == ERR_INVALID_TARGET)
+            delete creep.memory.order;
+
+        if (drop && drop.store.energy == drop.store.getCapacity(RESOURCE_ENERGY))
+            delete creep.memory.order;
         
         return result;
     }
