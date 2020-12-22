@@ -8,12 +8,6 @@ const UpgradeManager = require('./UpgradeManager');
 
 class Overseer
 {
-    logisticManagers;
-    spawnerManagers;
-    constructionManagers;
-    harvestManagers;
-    upgradeManagers;
-
     // get creeps with a specific marker
     getCreeps(marker)
     {

@@ -4,21 +4,19 @@ const SpawnManager = require('./SpawnManager');
 
 class UpgradeManager
 {
-    marker = "UpgradeManager";
-    
-    room;
-
-    MAX_UPGRADERS = 1;
-
     constructor(room)
     {
         this.room = room;
+
+        this.marker = "UpgradeManager";
+        this.MAX_UPGRADERS = 1;
     }
 
     pre(overseer) { }
     run(overseer)
     {
-        let creeps = overseer.getCreeps(this.mark);
+        let creeps = overseer.getCreeps(this.marker);
+        console.log(creeps.length)
 
         for (let creep of creeps)
         {
@@ -36,19 +34,17 @@ class UpgradeManager
             if (!container)
                 continue;
 
-            creep.memory.order = { from: container.id, to: this.room.controller }
+            creep.memory.order = { from: container.id, to: this.room.controller.id }
         }
 
         if (creeps.length < this.MAX_UPGRADERS)
         {
-            if (overseer.spawnerManagers[this.room.name].getInQueueWithMarker(this.marker) == 0)
-            {
+            if (overseer.spawnerManagers[this.room.name].getInQueueWithMarker(this.marker).length == 0)
                 overseer.spawnerManagers[this.room.name].request(
-                    [WORK, CARRY, MOVE],
-                    SpawnManager.generateName("upgrader"),
+                    [WORK, MOVE, CARRY],
+                    SpawnManager.generateName("upgrade"),
                     { marker: this.marker }
                 );
-            }
         }
     }
     post(overseer) { }
@@ -76,10 +72,11 @@ class UpgradeManager
     upgrade(creep)
     {
         let order = creep.memory.order;
+        let to = Game.getObjectById(order.to)
 
-        let result = creep.upgradeController(this.room.controller);
+        let result = creep.upgradeController(to);
         if (result == ERR_NOT_IN_RANGE)
-            result = creep.moveTo(this.room.controller);
+            result = creep.moveTo(to);
 
         return result;
     }

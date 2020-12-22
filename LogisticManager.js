@@ -1,20 +1,17 @@
+const LogisticOrder = require('./LogisticOrder');
 const SpawnManager = require('./SpawnManager');
 
 // LogisticManager.js
 //  Manage trnasfer of resources in a room
 class LogisticManager
 {
-    marker = "LogisticManager"
-    
-    room;
-    orders;
-
-    MAX_WORKERS = 2;
-
     constructor(room)
     {
         this.room   = room;
         this.orders = room.memory.orders;
+
+        this.MAX_WORKERS = 2;
+        this.marker      = "LogisticManager"
     }
 
     initilize()
@@ -32,11 +29,11 @@ class LogisticManager
     run(overseer)
     {
         let creeps = overseer.getCreeps(this.marker);
-        if (creeps.length+1 < this.MAX_WORKERS && this.orders.length >= 0)
+        if (creeps.length < this.MAX_WORKERS)
         {
-            if (overseer.spawnerManagers[this.room.name].getInQueueWithMarker(this.marker) == 0)
+            if (overseer.spawnerManagers[this.room.name].getInQueueWithMarker(this.marker).length == 0)
             {
-                overseer.spawnerManagers[this.room.name].request(
+                overseer.spawnerManagers[this.room.name].force(
                     [WORK, CARRY, MOVE],
                     SpawnManager.generateName("logi"),
                     { marker: this.marker }
@@ -48,7 +45,7 @@ class LogisticManager
         {
             if (creep.memory.order)
             {
-                if (creep.store.energy < creep.memory.order.amount)
+                if (creep.store.energy == 0)
                     this.pickup(creep);
                 else
                     this.dropoff(creep);
@@ -61,6 +58,25 @@ class LogisticManager
                 break; // TODO: free un-needed creep
 
             creep.memory.order = order;
+        }
+
+        // tower logic
+        let enimies = this.room.find(FIND_HOSTILE_CREEPS);
+        let unrepaired = this.room.find(FIND_STRUCTURES, {filter: s => s.hits != s.hitsMax })
+
+        let tower = this.room.find(FIND_STRUCTURES, { filter: s => s.structureType == STRUCTURE_TOWER })[0];
+        if (enimies.length > 0)
+            tower.attack(enimies[0]);
+        if (unrepaired.length > 0)
+            tower.repair(unrepaired[0]);
+
+        if (tower.energy <= tower.energyCapacity / 2)
+        {
+            if (this.getTargetOrders(tower.id).length == 0)
+            {
+                let from = this.getFilledContainers()[0];
+                this.orders.push(new LogisticOrder(from.id, tower.id, tower.energyCapacity - tower.energy, this.marker));
+            }
         }
     }
 
@@ -116,11 +132,15 @@ class LogisticManager
         {
             order.amount -= carried;
         }
+        if (result == ERR_FULL)
+            delete creep.memory.order;
 
         if (order.amount > 0)
             creep.memory.order = order;
         else
             delete creep.memory.order;
+
+        creep.say(result)
 
         return result;
     }
@@ -134,6 +154,16 @@ class LogisticManager
                 orders.push(order);
         return orders
 
+    }
+
+    // get orders pointed at a target
+    getTargetOrders(target)
+    {
+        let orders = [];
+        for (let order of this.orders)
+            if (order.to == target)
+                orders.push(order);
+        return orders;
     }
 
     // get a point where energy can be dropped into the system

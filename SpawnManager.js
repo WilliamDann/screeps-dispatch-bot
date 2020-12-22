@@ -4,18 +4,15 @@ const LogisticOrder = require('./LogisticOrder');
 //  Manage a spawner
 class SpawnManager
 {
-    marker = "SpawnManager";
-
-    spawner;
-    spawnQueue;
-
-    MAX_QUEUE    = 100;
-    FATAL_ERRORS = [ ERR_NAME_EXISTS, ERR_INVALID_ARGS, ERR_RCL_NOT_ENOUGH ]
-
     constructor(spawner)
     {
         this.spawner    = spawner;
         this.spawnQueue = spawner.memory.spawnQueue;
+
+        this.MAX_QUEUE    = 100;
+        this.FATAL_ERRORS = [ ERR_NAME_EXISTS, ERR_INVALID_ARGS, ERR_RCL_NOT_ENOUGH ]
+        this.marker       = "SpawnManager";
+
     }
 
     pre(overseer)

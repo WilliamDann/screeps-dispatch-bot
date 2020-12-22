@@ -5,16 +5,13 @@ const SpawnManager = require("./SpawnManager");
 //  Manage resource collection in a room
 class HarvestManager
 {
-    marker = "HarvestManager"
-
-    room;
-    sources;
-
-    CREEPS_PER_SOURCE = 1;
-
     constructor(room)
     {
         this.room = room;
+        this.sources = this.room.memory.sources;
+
+        this.CREEPS_PER_SOURCE = 1;
+        this.marker            = "HarvestManager";
     }
 
     initilize()
@@ -26,11 +23,12 @@ class HarvestManager
         {
             this.sources.push(source.id);
         }
+        this.room.memory.sources = this.sources;
     }
 
     pre(overseer) 
     {
-        if (!this.sources) 
+        if (!this.room.memory.sources) 
             this.initilize();
     }
 
@@ -50,30 +48,13 @@ class HarvestManager
                 continue;
             }
 
-            let count = this.countSourceAssignments(creeps);
-
-            let minNum = Number.MAX_VALUE;
-            let minId;
-            for (let source in count)
-            {
-                console.log(`${source} : ${count[source]}`)
-                if (count[source] < minNum)
-                {
-                    minNum = count[source];
-                    minId  = source;
-                }
-            }
-
-            let to = overseer.logisticManagers[this.room.name].getFilledContainers()[0];
-            if (!to)
-                continue;
-
-            creep.memory.order = { from: minId, to: to.id }
+            let to = overseer.logisticManagers[this.room.name].getFillableContainers()[0];
+            creep.memory.order = { from: this.sources[0], to: to.id }
         }
 
         if (creeps.length < this.sources.length*this.CREEPS_PER_SOURCE)
         {
-            if (overseer.spawnerManagers[this.room.name].getInQueueWithMarker(this.marker) == 0)
+            if (overseer.spawnerManagers[this.room.name].getInQueueWithMarker(this.marker).length == 0)
                 overseer.spawnerManagers[this.room.name].request(
                     [WORK, MOVE, CARRY],
                     SpawnManager.generateName("harv"),

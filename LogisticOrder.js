@@ -1,10 +1,5 @@
 class LogisticOrder
 {
-    from;
-    to;
-    amount;
-    assigner;
-
     constructor(from, to, amount, assigner)
     {   
         this.from     = from;

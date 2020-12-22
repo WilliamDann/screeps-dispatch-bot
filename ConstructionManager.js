@@ -4,15 +4,13 @@ const SpawnManager = require('./SpawnManager');
 //  Construct buildings in a room
 class ConstructionManager
 {
-    marker = "ConstructionManager"
-
-    room;
-
-    MAX_WORKERS = 1;
 
     constructor(room)
     {
         this.room = room;
+
+        this.MAX_WORKERS = 1;
+        this.marker      = "ConstructionManager";
     }
 
     pre(overseer)
@@ -51,9 +49,9 @@ class ConstructionManager
             creep.memory.order = {from: from.id, to: sites[0].id, assigner: this.marker};
         }
 
-        if (creeps.length+1 < this.MAX_WORKERS && sites.length >= 0)
+        if (creeps.length < this.MAX_WORKERS && sites.length >= 0)
         {
-            if (overseer.spawnerManagers[this.room.name].getInQueueWithMarker(this.marker) == 0)
+            if (overseer.spawnerManagers[this.room.name].getInQueueWithMarker(this.marker).length == 0)
             {
                 overseer.spawnerManagers[this.room.name].request(
                     [WORK, CARRY, MOVE],
