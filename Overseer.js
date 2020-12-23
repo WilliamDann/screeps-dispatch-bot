@@ -27,51 +27,51 @@ class Overseer
         this.loadConstruction();
         this.loadHarvest();
         this.loadUpgrade();
-        this.loadInvade();
+        this.loadInvasion();
     }
 
     // load logistic managers
     loadLogistics()
     {
         this.logisticManagers = { };
-        for (let room in Game.rooms)
-            this.logisticManagers[room] = new LogisticManager(Game.rooms[room]);
+        for (let spawn in Game.spawns)
+            this.logisticManagers[Game.spawns[spawn].room.name] = new LogisticManager(Game.spawns[spawn].room);
     }
 
     // load spawn managers
     loadSpawners()
     {
         this.spawnerManagers = { };
-        for (let name in Game.rooms)
-            this.spawnerManagers[name] = new SpawnManager(Game.rooms[name].find(FIND_MY_SPAWNS)[0]);
+        for (let spawn in Game.spawns)
+            this.spawnerManagers[Game.spawns[spawn].room.name] = new SpawnManager(Game.spawns[spawn].room.find(FIND_MY_SPAWNS)[0]);
     }
 
     loadConstruction()
     {
         this.constructionManagers = { };
-        for (let name in Game.rooms)
-            this.constructionManagers[name] = new ConstructionManager(Game.rooms[name]);
+        for (let spawn in Game.spawns)
+            this.constructionManagers[Game.spawns[spawn].room.name] = new ConstructionManager(Game.spawns[spawn].room);
     }
 
     loadUpgrade()
     {
         this.upgradeManagers = { };
-        for (let name in Game.rooms)
-            this.upgradeManagers[name] = new UpgradeManager(Game.rooms[name]);
+        for (let spawn in Game.spawns)
+            this.upgradeManagers[Game.spawns[spawn].room.name] = new UpgradeManager(Game.spawns[spawn].room);
     }
 
     loadHarvest()
     {
         this.harvestManagers = { };
-        for (let name in Game.rooms)
-            this.harvestManagers[name] = new HarvestManager(Game.rooms[name]);
+        for (let spawn in Game.spawns)
+            this.harvestManagers[Game.spawns[spawn].room.name] = new HarvestManager(Game.spawns[spawn].room);
     }
 
-    loadInvade()
+    loadInvasion()
     {
-        this.invsionManagers = {};
-        for (let name in Game.rooms)
-            this.invsionManagers[name] = new InvasionManager(Game.rooms[name])
+        this.invasionManagers = { };
+        for (let spawn in Game.spawns)
+            this.invasionManagers[Game.spawns[spawn].room.name] = new InvasionManager(Game.spawns[spawn].room);
     }
 
     // run managers
@@ -92,7 +92,7 @@ class Overseer
         for (let upgrade in this.upgradeManagers)
             this.upgradeManagers[upgrade].tick(this);
 
-        for (let invade in this.invsionManagers)
-            this.invsionManagers[invade].tick(this);
+        for (let invade in this.invasionManagers)
+            this.invasionManagers[invade].tick(this);
     }
 } module.exports = Overseer;

@@ -7,7 +7,8 @@ class SpawnManager
     constructor(spawner)
     {
         this.spawner    = spawner;
-        this.spawnQueue = spawner.memory.spawnQueue;
+        if (spawner)
+            this.spawnQueue = spawner.memory.spawnQueue;
 
         this.MAX_QUEUE    = 100;
         this.FATAL_ERRORS = [ ERR_NAME_EXISTS, ERR_INVALID_ARGS, ERR_RCL_NOT_ENOUGH ]
@@ -22,6 +23,8 @@ class SpawnManager
 
     run(overseer)
     {
+        if (!this.spawner) return;
+        
         let request = this.spawnQueue[0];
         if (!request)
             return;
@@ -80,6 +83,7 @@ class SpawnManager
     // set up memory
     initilize()
     {
+        if (!this.spawner) return;
         this.spawnQueue = [];
         this.spawner.memory.spawnQueue = [];
     }

@@ -8,19 +8,28 @@ class InvasionManager
 
         this.marker = "InvasionManager";
         
-        this.target     = "W35N52";
+        this.target     = new RoomPosition(32, 38, "W35N52");
         this.body       = [ ATTACK, MOVE ];
-        this.buildUntil = 10;
+        this.buildUntil = 5;
     }
 
-    pre(overseer) { }
+    pre(overseer) { if (!this.room.memory.invasion) this.room.memory.invasion = {} }
     run (overseer)
     {
-        if (!this.target) return;
-
         let creeps = overseer.getCreeps(this.marker);
+        if (creeps.length >= this.buildUntil)
+        {
+            this.room.memory.invasion.attacking = true;
+        }
+        if (creeps.length <= Math.ceil(this.buildUntil / 4))
+        {
+            this.room.memory.invasion.attacking = false;
+        }
+
         if (creeps.length < this.buildUntil)
         {
+            console.log(`Invasion Building... (${creeps.length}/${this.buildUntil})`);
+
             if (overseer.spawnerManagers[this.room.name].getInQueueWithMarker(this.marker).length == 0)
             {
                 overseer.spawnerManagers[this.room.name].force(
@@ -33,33 +42,22 @@ class InvasionManager
 
         for (let creep of creeps)
         {
-            // move to target
-            if (creep.room.name != this.target)
+            let baddies  = creep.room.find(FIND_HOSTILE_CREEPS);
+            if (baddies.length > 0)
             {
-                creep.moveTo(creep.pos.findClosestByRange(creep.room.findExitTo(this.target)));
+                this.attackInRoom(creep, baddies);
             }
+
+            // move to target
             
-            if (creeps.length >= this.buildUntil)
+            if (this.room.memory.invasion.attacking)
             {
-                let baddies  = room.find(FIND_HOSTILE_CREEPS);
-    
-                let maxCombatScore = 0;
-                let priority       = null;
-                for (let baddie in baddies)
+                let result = this.attackInRoom(creep);
+                if (creep.room.name != this.target.roomName)
                 {
-                    let score = InvasionManager.getCombatScore(baddie);
-                    if (score > maxCombatScore)
-                    {
-                        maxCombatScore = score;
-                        priority = baddie;
-                    }
+                    console.log(creep.name)
+                    creep.moveTo(this.target);
                 }
-                if (priority == null)
-                    priority = baddies[0];
-    
-                let result = creep.attack(priority);
-                if (result == ERR_NOT_IN_RANGE)
-                    creep.moveTo(result);
             }
             else
             {
@@ -78,15 +76,42 @@ class InvasionManager
 
     /// helpers
 
+    attackInRoom(creep, baddies)
+    {
+        if (!baddies || baddies.length == 0) return;
+
+        let maxCombatScore = 0;
+        let priority       = null;
+        for (let baddie of baddies)
+        {
+            let score = InvasionManager.getCombatScore(baddie);
+            console.log(`${score}:${baddie.name}`)
+            if (score > maxCombatScore)
+            {
+                maxCombatScore = score;
+                priority = baddie;
+            }
+        }
+        if (priority == null)
+            priority = baddies[0];
+
+        let result = creep.attack(priority);
+        if (result == ERR_NOT_IN_RANGE || result == ERR_NO_BODYPART)
+            result = creep.moveTo(priority)
+
+        return result;
+    }
+
     // get a numberic representation of a creep's combat ability
     static getCombatScore(creep)
     {
         let score = 0;
-        for (let part of creep.body)
-            switch (part.type)
+        for (let part in creep.body)
+        {
+            switch (creep.body[part].type)
             {
                 case CLAIM:
-                    score += 2;
+                    score += 100;
                     break;
                 case ATTACK:
                     score += 5;
@@ -100,6 +125,7 @@ class InvasionManager
                 case HEAL:
                     score += 10;
             }
+        }
         return score;
     }
 } module.exports = InvasionManager;
