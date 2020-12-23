@@ -5,6 +5,7 @@ const SpawnManager    = require('./SpawnManager');
 const ConstructionManager = require('./ConstructionManager');
 const HarvestManager = require('./HarvestManager');
 const UpgradeManager = require('./UpgradeManager');
+const InvasionManager = require('./InvasionManager');
 
 class Overseer
 {
@@ -26,6 +27,7 @@ class Overseer
         this.loadConstruction();
         this.loadHarvest();
         this.loadUpgrade();
+        this.loadInvade();
     }
 
     // load logistic managers
@@ -65,6 +67,13 @@ class Overseer
             this.harvestManagers[name] = new HarvestManager(Game.rooms[name]);
     }
 
+    loadInvade()
+    {
+        this.invsionManagers = {};
+        for (let name in Game.rooms)
+            this.invsionManagers[name] = new InvasionManager(Game.rooms[name])
+    }
+
     // run managers
     tick()
     {
@@ -82,5 +91,8 @@ class Overseer
 
         for (let upgrade in this.upgradeManagers)
             this.upgradeManagers[upgrade].tick(this);
+
+        for (let invade in this.invsionManagers)
+            this.invsionManagers[invade].tick(this);
     }
 } module.exports = Overseer;

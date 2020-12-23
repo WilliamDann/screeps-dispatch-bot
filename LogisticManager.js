@@ -34,7 +34,7 @@ class LogisticManager
             if (overseer.spawnerManagers[this.room.name].getInQueueWithMarker(this.marker).length == 0)
             {
                 overseer.spawnerManagers[this.room.name].force(
-                    SpawnManager.getBestBody(this.room, { MOVE: 2, CARRY: 1 }, 0.15),
+                    SpawnManager.getBestBody(this.room, { MOVE: 3, CARRY: 1 }, 0.15),
                     SpawnManager.generateName("logi"),
                     { marker: this.marker }
                 );
