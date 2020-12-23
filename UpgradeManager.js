@@ -24,7 +24,7 @@ class UpgradeManager
                 continue;
             }
 
-            this.assignOrder(creep);
+            this.assignOrder(creep, overseer);
         }
 
         if (creeps.length < this.MAX_UPGRADERS)
@@ -54,11 +54,11 @@ class UpgradeManager
             return this.upgrade(creep);
     }
 
-    assignOrder(creep)
+    assignOrder(creep, overseer)
     {
         let container = overseer.logisticManagers[this.room.name].getFilledContainers()[0];
         if (!container)
-            continue;
+            return;
 
         creep.memory.order = { from: container.id, to: this.room.controller.id }
     }
@@ -72,6 +72,8 @@ class UpgradeManager
 
         if (result == ERR_NOT_IN_RANGE)
             result = creep.moveTo(from);
+        if (result == ERR_INVALID_TARGET)
+            delete creep.memory.order;
 
         return result;
     }

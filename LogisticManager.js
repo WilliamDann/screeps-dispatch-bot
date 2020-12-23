@@ -34,7 +34,7 @@ class LogisticManager
             if (overseer.spawnerManagers[this.room.name].getInQueueWithMarker(this.marker).length == 0)
             {
                 overseer.spawnerManagers[this.room.name].force(
-                    [WORK, CARRY, MOVE, MOVE],
+                    SpawnManager.getBestBody(this.room, { MOVE: 2, CARRY: 1 }, 0.15),
                     SpawnManager.generateName("logi"),
                     { marker: this.marker }
                 );
@@ -58,17 +58,20 @@ class LogisticManager
         let unrepaired = this.room.find(FIND_STRUCTURES, {filter: s => s.hits != s.hitsMax })
 
         let tower = this.room.find(FIND_STRUCTURES, { filter: s => s.structureType == STRUCTURE_TOWER })[0];
-        if (enimies.length > 0)
-            tower.attack(enimies[0]);
-        if (unrepaired.length > 0)
-            tower.repair(unrepaired[0]);
-
-        if (tower.energy <= tower.energyCapacity / 2)
+        if (tower)
         {
-            if (this.getTargetOrders(tower.id).length == 0)
+            if (enimies.length > 0)
+                tower.attack(enimies[0]);
+            if (unrepaired.length > 0)
+                tower.repair(unrepaired[0]);
+    
+            if (tower.energy <= tower.energyCapacity / 2)
             {
-                let from = this.getFilledContainers()[0];
-                this.orders.push(new LogisticOrder(from.id, tower.id, tower.energyCapacity - tower.energy, this.marker));
+                if (this.getTargetOrders(tower.id).length == 0)
+                {
+                    let from = this.getFilledContainers()[0];
+                    this.orders.push(new LogisticOrder(from.id, tower.id, tower.energyCapacity - tower.energy, this.marker));
+                }
             }
         }
     }
@@ -113,8 +116,11 @@ class LogisticManager
             amount = order.amount;
 
         let container = Game.getObjectById(order.from);
+        if (!container)
+            return delete creep.memory.order;
 
         let result;
+
         if (container.structureType)
             result = creep.withdraw(container, RESOURCE_ENERGY, amount);
         else
@@ -123,7 +129,7 @@ class LogisticManager
         if (result == ERR_NOT_IN_RANGE)
             result = creep.moveTo(container);
 
-        return result;
+        creep.say(result);
     }
 
     // run dropoff process
@@ -149,7 +155,8 @@ class LogisticManager
         else
             delete creep.memory.order;
 
-        creep.say(result)
+        if (result == ERR_FULL)
+            delete creep.memory.order;
 
         return result;
     }

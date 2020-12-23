@@ -45,7 +45,7 @@ class ConstructionManager
             creep.memory.order = {from: from.id, to: sites[0].id, assigner: this.marker};
         }
 
-        if (creeps.length < this.MAX_WORKERS && sites.length >= 0)
+        if (creeps.length < this.MAX_WORKERS && sites.length > 0)
         {
             if (overseer.spawnerManagers[this.room.name].getInQueueWithMarker(this.marker).length == 0)
             {

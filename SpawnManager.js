@@ -35,6 +35,7 @@ class SpawnManager
 
         if (result == ERR_NOT_ENOUGH_ENERGY)
         {
+            console.log("Spawning: " + this.spawner.room.energyAvailable + "/" + SpawnManager.totalBodyCost(request.body))
             let logisticManager = overseer.logisticManagers[this.spawner.room.name];
             let from;
             let to;
@@ -54,7 +55,9 @@ class SpawnManager
 
             // assign fill order
             if (logisticManager.getAssignerOrders(this.marker) == 0)
-                logisticManager.orders.push(new LogisticOrder(from.id, to.id, 50, this.marker));
+            {
+                logisticManager.orders.push(new LogisticOrder(from.id, to.id, to.energyCapacityAvailable, this.marker));
+            }
         }
 
         if (result == OK)
@@ -131,12 +134,31 @@ class SpawnManager
     }
 
     // get cost of a creep body
+    static getBestBody(room, priority={WORK : 1, CARRY: 1, MOVE: 1}, factor=0.5)
+    {
+        let body     = [ WORK, CARRY, MOVE ];
+        let capacity = room.energyCapacityAvailable - SpawnManager.totalBodyCost(body);
+        capacity *= factor;
+
+        while (capacity > 0)
+            for (let part of Object.keys(priority))
+            {
+                part = part.toLowerCase()
+                capacity -= BODYPART_COST[part];
+
+                if (capacity > 0)
+                    body.push(part);
+            }
+
+        return body;
+    }
+
     static totalBodyCost(body)
     {
         let total = 0;
-        for (let part in body)
+        for (let part of body)
         {
-            total += BODYPART_COST[total];
+            total += BODYPART_COST[part];
         }
         return total;
     }

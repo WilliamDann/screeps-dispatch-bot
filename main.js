@@ -1,4 +1,5 @@
 const Overseer = require('./Overseer');
+const SpawnManager = require('./SpawnManager');
 
 module.exports.loop = () => {
     // clear dead creeps

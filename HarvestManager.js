@@ -44,14 +44,14 @@ class HarvestManager
                 continue;
             }
 
-            this.assignOrder(creep);
+            this.assignOrder(creep, overseer);
         }
 
         if (creeps.length < this.sources.length*this.CREEPS_PER_SOURCE)
         {
             if (overseer.spawnerManagers[this.room.name].getInQueueWithMarker(this.marker).length == 0)
                 overseer.spawnerManagers[this.room.name].request(
-                    [WORK, WORK, MOVE, CARRY],
+                    SpawnManager.getBestBody(this.room, { WORK: 3, CARRY: 1 }),
                     SpawnManager.generateName("harv"),
                     { marker: this.marker }
                 );
@@ -78,7 +78,7 @@ class HarvestManager
             return this.harvest(creep);
     }
 
-    assignOrder(creep)
+    assignOrder(creep, overseer)
     {
         let to = overseer.logisticManagers[this.room.name].getFillableContainers()[0];
         creep.memory.order = { from: this.sources[0], to: to.id }
@@ -112,7 +112,6 @@ class HarvestManager
     }
 
     /// helpers
-    
     countSourceAssignments(creeps)
     {
         let count = { };
