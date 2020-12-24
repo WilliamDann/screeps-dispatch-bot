@@ -10,12 +10,14 @@ class InvasionManager
         
         this.target     = new RoomPosition(32, 38, "W35N52");
         this.body       = [ ATTACK, MOVE ];
-        this.buildUntil = 5;
+        this.buildUntil = 10;
     }
 
     pre(overseer) { if (!this.room.memory.invasion) this.room.memory.invasion = {} }
     run (overseer)
     {
+        if (!this.target) return;
+        
         let creeps = overseer.getCreeps(this.marker);
         if (creeps.length >= this.buildUntil)
         {
@@ -25,6 +27,8 @@ class InvasionManager
         {
             this.room.memory.invasion.attacking = false;
         }
+        if (this.room.memory.invasion.attacking)
+            console.log(`attacking ${this.target.roomName}`);
 
         if (creeps.length < this.buildUntil)
         {
@@ -43,6 +47,7 @@ class InvasionManager
         for (let creep of creeps)
         {
             let baddies  = creep.room.find(FIND_HOSTILE_CREEPS);
+
             if (baddies.length > 0)
             {
                 this.attackInRoom(creep, baddies);
@@ -55,7 +60,6 @@ class InvasionManager
                 let result = this.attackInRoom(creep);
                 if (creep.room.name != this.target.roomName)
                 {
-                    console.log(creep.name)
                     creep.moveTo(this.target);
                 }
             }
@@ -84,8 +88,7 @@ class InvasionManager
         let priority       = null;
         for (let baddie of baddies)
         {
-            let score = InvasionManager.getCombatScore(baddie);
-            console.log(`${score}:${baddie.name}`)
+            let score = InvasionManager.getCombatScore(baddie) * (5/creep.pos.getRangeTo(baddie));
             if (score > maxCombatScore)
             {
                 maxCombatScore = score;
@@ -110,6 +113,9 @@ class InvasionManager
         {
             switch (creep.body[part].type)
             {
+                case WORK:
+                    score += 10;
+                    break;
                 case CLAIM:
                     score += 100;
                     break;

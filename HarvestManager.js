@@ -50,7 +50,7 @@ class HarvestManager
         if (creeps.length < this.sources.length*this.CREEPS_PER_SOURCE)
         {
             if (overseer.spawnerManagers[this.room.name].getInQueueWithMarker(this.marker).length == 0)
-                overseer.spawnerManagers[this.room.name].request(
+                overseer.spawnerManagers[this.room.name].force(
                     SpawnManager.getBestBody(this.room, { WORK: 3, CARRY: 1 }),
                     SpawnManager.generateName("harv"),
                     { marker: this.marker }
